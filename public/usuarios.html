@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Usuários</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <a href="index.html">Voltar</a>
+  <h1>Usuários</h1>
+  <form id="usuario-form">
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <input type="text" id="telefone" placeholder="Telefone" required>
+    <input type="text" id="endereco" placeholder="Endereço" required>
+    <label>Data de nascimento: <input type="date" id="dataNascimento" required></label>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <table class="table" id="usuario-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Telefone</th>
+        <th>Endereço</th>
+        <th>Nascimento</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function carregarUsuarios() {
+      $.get('/api/usuarios', function(data) {
+        const linhas = data.map(u => `<tr><td>${u.id}</td><td>${u.nome}</td><td>${u.email}</td><td>${u.telefone || '-'}</td><td>${u.endereco || '-'}</td><td>${u.dataNascimento || '-'}</td></tr>`);
+        $('#usuario-table tbody').html(linhas.join(''));
+      });
+    }
+
+    $('#usuario-form').on('submit', function(event) {
+      event.preventDefault();
+      $.post('/api/usuarios', {
+        nome: $('#nome').val(),
+        email: $('#email').val(),
+        senha: $('#senha').val(),
+        telefone: $('#telefone').val(),
+        endereco: $('#endereco').val(),
+        dataNascimento: $('#dataNascimento').val(),
+      }).done(() => {
+        this.reset();
+        carregarUsuarios();
+      });
+    });
+
+    carregarUsuarios();
+  </script>
+</body>
+</html>

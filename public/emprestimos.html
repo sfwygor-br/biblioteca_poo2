@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Empréstimos</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <a href="index.html">Voltar</a>
+  <h1>Empréstimos</h1>
+  <form id="emprestimo-form">
+    <input type="number" id="idExemplar" placeholder="ID do exemplar" required>
+    <input type="number" id="idUsuario" placeholder="ID do usuário" required>
+    <input type="date" id="dataDevolucao" placeholder="Devolução prevista" required>
+    <button type="submit">Registrar</button>
+  </form>
+
+  <table class="table" id="emprestimo-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>ID Exemplar</th>
+        <th>ID Usuário</th>
+        <th>Data Empréstimo</th>
+        <th>Data Devolução</th>
+        <th>Data Devolvido</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function carregarEmprestimos() {
+      $.get('/api/emprestimos', function(data) {
+        const linhas = data.map(e => `
+          <tr>
+            <td>${e.id}</td>
+            <td>${e.idExemplar}</td>
+            <td>${e.idUsuario}</td>
+            <td>${e.dataEmprestimo}</td>
+            <td>${e.dataDevolucao}</td>
+            <td>${e.dataDevolvido || '-'}</td>
+            <td>${e.dataDevolvido ? 'Concluído' : `<button data-id="${e.id}" class="btn-devolver">Devolver</button>`}</td>
+          </tr>`);
+        $('#emprestimo-table tbody').html(linhas.join(''));
+      });
+    }
+
+    $('#emprestimo-form').on('submit', function(event) {
+      event.preventDefault();
+      $.post('/api/emprestimos', {
+        idExemplar: Number($('#idExemplar').val()),
+        idUsuario: Number($('#idUsuario').val()),
+        dataDevolucao: $('#dataDevolucao').val()
+      }).done(() => {
+        this.reset();
+        carregarEmprestimos();
+      });
+    });
+
+    $('#emprestimo-table').on('click', '.btn-devolver', function() {
+      const id = $(this).data('id');
+      $.post(`/api/emprestimos/${id}/devolver`).done(carregarEmprestimos);
+    });
+
+    carregarEmprestimos();
+  </script>
+</body>
+</html>

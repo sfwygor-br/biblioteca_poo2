@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Associação Livro x Autor</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <a href="index.html">Voltar</a>
+  <h1>Associação Livro x Autor</h1>
+  <form id="livro-autor-form">
+    <label>
+      Livro:
+      <select id="idLivro" required></select>
+    </label>
+    <label>
+      Autor:
+      <select id="idAutor" required></select>
+    </label>
+    <button type="submit">Vincular</button>
+  </form>
+
+  <table class="table" id="livro-autor-table">
+    <thead>
+      <tr>
+        <th>ID Livro</th>
+        <th>Título</th>
+        <th>ID Autor</th>
+        <th>Nome do Autor</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function carregarLivros() {
+      return $.get('/api/livros', function(data) {
+        const opcoes = data.map(l => `<option value="${l.id}">${l.titulo} (#${l.id})</option>`);
+        $('#idLivro').html(opcoes.join(''));
+      });
+    }
+
+    function carregarAutores() {
+      return $.get('/api/autores', function(data) {
+        const opcoes = data.map(a => `<option value="${a.id}">${a.nome} (#${a.id})</option>`);
+        $('#idAutor').html(opcoes.join(''));
+      });
+    }
+
+    function carregarAssociacoes() {
+      $.get('/api/livros-autores', function(data) {
+        const linhas = data.map(a => `
+          <tr>
+            <td>${a.idLivro}</td>
+            <td>${a.tituloLivro || '-'}</td>
+            <td>${a.idAutor}</td>
+            <td>${a.nomeAutor || '-'}</td>
+            <td><button class="btn-remover" data-livro="${a.idLivro}" data-autor="${a.idAutor}">Remover</button></td>
+          </tr>
+        `);
+        $('#livro-autor-table tbody').html(linhas.join(''));
+      });
+    }
+
+    $('#livro-autor-form').on('submit', function(event) {
+      event.preventDefault();
+      $.post('/api/livros-autores', {
+        idLivro: Number($('#idLivro').val()),
+        idAutor: Number($('#idAutor').val()),
+      }).done(() => {
+        carregarAssociacoes();
+      });
+    });
+
+    $('#livro-autor-table').on('click', '.btn-remover', function() {
+      const idLivro = $(this).data('livro');
+      const idAutor = $(this).data('autor');
+      $.ajax({
+        url: '/api/livros-autores',
+        method: 'DELETE',
+        data: { idLivro, idAutor },
+      }).done(() => {
+        carregarAssociacoes();
+      });
+    });
+
+    Promise.all([carregarLivros(), carregarAutores()]).then(carregarAssociacoes);
+  </script>
+</body>
+</html>

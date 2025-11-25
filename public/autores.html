@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Autores</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <a href="index.html">Voltar</a>
+  <h1>Autores</h1>
+  <form id="autor-form">
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="text" id="nacionalidade" placeholder="Nacionalidade" required>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <table class="table" id="autor-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Nacionalidade</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function carregarAutores() {
+      $.get('/api/autores', function(data) {
+        const linhas = data.map(a => `<tr><td>${a.id}</td><td>${a.nomeAutor}</td><td>${a.nacionalidade}</td></tr>`);
+        $('#autor-table tbody').html(linhas.join(''));
+      });
+    }
+
+    $('#autor-form').on('submit', function(event) {
+      event.preventDefault();
+      $.post('/api/autores', {
+        nomeAutor: $('#nome').val(),
+        nacionalidade: $('#nacionalidade').val(),
+      }).done(() => {
+        this.reset();
+        carregarAutores();
+      });
+    });
+
+    carregarAutores();
+  </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Livros</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <a href="index.html">Voltar</a>
+  <h1>Livros</h1>
+  <form id="livro-form">
+    <input type="text" id="titulo" placeholder="Título" required>
+    <input type="text" id="edicao" placeholder="Editor" required>
+    <input type="number" id="anoPublicacao" placeholder="Ano" required>
+    <input type="number" id="idCategoria" placeholder="ID da categoria" required>
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <table class="table" id="livro-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Editor</th>
+        <th>Ano</th>
+        <th>ID Categoria</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    function carregarLivros() {
+      $.get('/api/livros', function(data) {
+        const linhas = data.map(l => `<tr><td>${l.id}</td><td>${l.titulo}</td><td>${l.editora}</td><td>${l.anoPubli}</td><td>${l.idCategoria}</td></tr>`);
+        $('#livro-table tbody').html(linhas.join(''));
+      });
+    }
+
+    $('#livro-form').on('submit', function(event) {
+      event.preventDefault();
+      $.post('/api/livros', {
+        titulo: $('#titulo').val(),
+        editora: $('#edicao').val(),
+        anoPubli: Number($('#anoPublicacao').val()),
+        idCategoria: Number($('#idCategoria').val())
+      }).done(() => {
+        this.reset();
+        carregarLivros();
+      });
+    });
+
+    carregarLivros();
+  </script>
+</body>
+</html>
