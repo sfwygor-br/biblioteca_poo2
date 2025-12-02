@@ -5,9 +5,9 @@ const LivroAutorRepository = require('../repositories/LivroAutorRepository');
 class MySqlDatabase {
   constructor() {
     this.pool = mysql.createPool({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || 'senai',
+      host: process.env.DB_HOST || '34.2.171.188',
+      user: process.env.DB_USER || 'admin',
+      password: process.env.DB_PASSWORD || 'SenhaForte123',
       database: process.env.DB_NAME || 'biblioteca',
       port: Number(process.env.DB_PORT) || 3306,
       waitForConnections: true,
